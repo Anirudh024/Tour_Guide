@@ -4,4 +4,3 @@ python-multipart
 jinja2
 google-genai
 google-cloud-aiplatform
-requests
