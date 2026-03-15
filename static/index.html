@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tour Guide</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-text">
+                <h1>Hello, Traveller</h1>
+                <p>Welcome to Tour Buddy</p>
+            </div>
+            <div class="profile-avatar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+        </header>
+
+        <main id="content-area">
+            
+            <section id="explore-section" class="tab-content active">
+                <div class="section-title">
+                    <h2>Scan your environment</h2>
+                </div>
+
+                <div class="camera-card" id="camera-container">
+                    <div id="camera-overlay" class="camera-overlay">
+                        <div class="icon-circle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        </div>
+                        <p id="camera-status-text">Camera is Off</p>
+                        <button id="toggle-camera-btn" class="pill-btn light-btn">Turn On</button>
+                    </div>
+                    <video id="camera-feed" playsinline></video>
+                    <canvas id="snapshot-canvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="controls-row">
+                    <button id="capture-btn" class="pill-btn dark-btn">Scan Monument</button>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    <button id="upload-btn" class="icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </button>
+                </div>
+
+                <div id="result-card" class="content-card hidden">
+                    <div class="card-header">
+                        <h2 id="location-name">Detecting...</h2>
+                    </div>
+                    <p id="tour-script" class="card-description"></p>
+                    
+                    <div id="video-container" class="video-section hidden">
+                        <h3>Visual History</h3>
+                        <video id="story-video" controls width="100%"></video>
+                    </div>
+                </div>
+            </section>
+
+            <section id="map-section" class="tab-content">
+                <div class="section-title">
+                    <h2>Nearby Tours</h2>
+                </div>
+                <div class="map-card">
+                    <div id="map-container"></div>
+                </div>
+                <p id="map-hint" class="hint-text">Scan a location to unlock the map.</p>
+            </section>
+
+            <section id="history-section" class="tab-content">
+                <div class="section-title">
+                    <h2>Your Journey</h2>
+                </div>
+                <div id="history-list" class="history-container">
+                    <p class="hint-text">No locations saved yet.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="floating-nav">
+            <button class="nav-item active" data-target="explore-section">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </button>
+            <button class="nav-item" data-target="map-section">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            </button>
+            <button class="nav-item" data-target="history-section">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            </button>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
