@@ -1,29 +1,32 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: monument-analyzer
+  web:
+    build: .
+    container_name: location-analyzer
     ports:
       - "8080:8080"
     environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
-      - ./static:/app/static
-      - ./uploads:/app/uploads
       - ./app.py:/app/app.py
-    stdin_open: true
-    tty: true
-    restart: on-failure
+      - ./static:/app/static
+      - ./requirements.txt:/app/requirements.txt
+    develop:
+      watch:
+        - path: ./app.py
+          action: sync
+          target: /app/app.py
+        - path: ./static
+          action: sync
+          target: /app/static
+        - path: ./requirements.txt
+          action: rebuild
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8080/', timeout=5)"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
-
-  # Development mode (optional): uncomment to use with docker compose -f docker-compose.yml -f docker-compose.dev.yml up
-  # For hot reload, use: docker compose watch

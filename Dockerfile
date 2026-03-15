@@ -1,46 +1,44 @@
-# Multi-stage build for Python Flask app
+# Build stage
 FROM python:3.11-slim as builder
 
 WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN pip install --user --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Production stage
+# Runtime stage
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install gunicorn in production stage
-RUN pip install --no-cache-dir gunicorn==21.2.0
+# Install runtime dependencies only (gunicorn for production)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gunicorn \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy Python packages from builder
+# Copy Python dependencies from builder
 COPY --from=builder /root/.local /root/.local
 
-# Copy application files
-COPY app.py .
-COPY static/ ./static/
+# Copy application code
+COPY . .
 
 # Set environment variables
 ENV PATH=/root/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     PORT=8080
 
-# Create uploads directory
-RUN mkdir -p uploads
-
-# Expose port
-EXPOSE 8080
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8080/', timeout=5)" || exit 1
 
-# Run with gunicorn
+# Expose port
+EXPOSE 8080
+
+# Run with gunicorn (matching Procfile)
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "8", "--timeout", "0", "app:app"]
