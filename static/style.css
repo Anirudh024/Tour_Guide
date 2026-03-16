@@ -58,21 +58,37 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 20px; padding-b
 #map-container { height: 400px; width: 100%; border-radius: 24px; background: #CBCBCB; z-index: 1;}
 .hint-text { text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 15px; }
 
-.history-item { padding: 18px; background: var(--card-bg); border-radius: var(--border-radius-md); margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-.history-item strong { color: var(--text-main); display: block; margin-bottom: 6px; font-size: 16px;}
-.history-item span { color: var(--text-muted); font-size: 14px; line-height: 1.4; display: block;}
-
 .floating-nav { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--dark-primary); width: 85%; padding: 12px 25px; border-radius: var(--border-radius-pill); display: flex; justify-content: space-between; box-shadow: 0 15px 30px rgba(0,0,0,0.2); z-index: 1000; }
 .nav-item { background: none; border: none; color: #666; cursor: pointer; padding: 10px; transition: 0.3s; display: flex; justify-content: center; align-items: center; border-radius: 50%; }
 .nav-item.active { color: white; background: rgba(255,255,255,0.15); }
 .hidden { display: none !important; }
 
-/* Custom Leaflet Popup Styling to match Bento Design */
+/* Custom Leaflet Popup Styling */
 .leaflet-popup-content-wrapper { border-radius: 16px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important; padding: 4px !important; }
 .leaflet-popup-content { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; margin: 12px 14px !important; line-height: 1.4 !important; text-align: center; }
 .popup-title { font-weight: 700; font-size: 16px; color: var(--text-main); margin-bottom: 6px; }
 .popup-desc { font-size: 13px; color: var(--text-muted); }
-.leaflet-popup-tip-container { display: none; } /* Hide the default tip arrow for a floating pill look */
-
-/* New Popup Button Styling */
+.leaflet-popup-tip-container { display: none; }
 .popup-btn { margin-top: 12px; padding: 10px 14px; font-size: 13px; width: 100%; }
+
+/* --- SOUVENIR SCRAPBOOK STYLES --- */
+.souvenir-card { background: #FFFFFF; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); transform: rotate(-1deg); transition: transform 0.3s; border: 1px solid #e0e0e0; }
+.souvenir-card:nth-child(even) { transform: rotate(2deg); }
+.souvenir-card:active { transform: scale(0.98) rotate(0deg); }
+.souvenir-photo-frame { background: #f8f8f8; padding: 10px 10px 25px 10px; border-radius: 4px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+.souvenir-image { width: 100%; height: 200px; object-fit: cover; border-radius: 2px; border: 1px solid #ddd; }
+.souvenir-details { padding: 0 5px; }
+.souvenir-title { font-size: 20px; color: var(--dark-primary); margin-bottom: 8px; font-weight: 700; }
+.souvenir-script { font-style: italic; color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 15px; }
+.rendering-text { font-size: 13px; color: #f39c12; background: #fff8e1; padding: 8px; border-radius: 6px; text-align: center; font-weight: 600; margin-bottom: 15px; }
+.souvenir-video { border-radius: 8px; margin-bottom: 15px; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+/* --- LINK CHIPS --- */
+.ref-container { border-top: 1px dashed #ccc; padding-top: 12px; font-size: 13px; color: var(--text-main); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.ref-chip { display: inline-block; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid rgba(0,0,0,0.05); }
+.ref-chip:active { transform: scale(0.95); }
+.wiki-chip { background: #ffffff; color: #000000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.map-chip { background: #e8f0fe; color: #1967d2; }
+.search-chip { background: var(--bg-color); color: var(--dark-primary); }
+.ref-chip:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.15); }

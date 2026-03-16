@@ -2,12 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let map = null;
     let mapMarkers = [];
     
-    // --- NAVIGATION & SWIPE LOGIC ---
+    // --- NAVIGATION LOGIC ---
     const tabs = ['explore-section', 'map-section', 'history-section'];
     const navItems = document.querySelectorAll('.nav-item');
     const mainArea = document.getElementById('content-area');
     
-    // Made global so startMapVideo can call it
     window.switchTab = function(targetId) {
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -135,9 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
             playTTS(data.script);
             
             updateMap(data);
-            addToHistory(data.location, data.script);
+            
+            const memoryId = 'mem_' + Date.now();
+            
+            // Add to Scrapbook
+            addSouvenirToScrapbook(memoryId, data.location, data.script, base64Image, data.references, data.lat, data.lng);
 
-            generateVideoStory(data.location, data.era, data.visual_scene);
+            // Generate Video
+            generateVideoStory(data.location, data.era, data.visual_scene, memoryId);
 
         } catch (error) {
             console.error(error);
@@ -187,16 +191,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainMarker = L.marker([data.lat, data.lng]).addTo(map).bindPopup(mainPopupHTML).openPopup();
         mapMarkers.push(mainMarker);
 
-        // Nearby location markers with descriptions AND Generate Video Button
+        // Nearby location markers
         data.nearby.forEach(place => {
-            const safeName = place.name.replace(/'/g, "\\'");
-            const safeEra = place.era ? place.era.replace(/'/g, "\\'") : "Unknown Era";
-            const safeScene = place.visual_scene ? place.visual_scene.replace(/'/g, "\\'") : "A bustling historical day.";
+            const safeName = place.name ? place.name.replace(/'/g, "\\'") : "Unknown";
+            const safeEra = place.era ? place.era.replace(/'/g, "\\'") : "Unknown";
+            const safeScene = place.visual_scene ? place.visual_scene.replace(/'/g, "\\'") : "A bustling day.";
 
             const popupHTML = `
                 <div class="popup-title">${place.name}</div>
                 <div class="popup-desc">${place.description || 'Nearby Attraction'}</div>
-                <button class="pill-btn dark-btn popup-btn" onclick="startMapVideo('${safeName}', '${safeEra}', '${safeScene}')">
+                <button class="pill-btn dark-btn popup-btn" onclick="startMapVideo('${safeName}', '${safeEra}', '${safeScene}', ${place.lat}, ${place.lng})">
                     Generate History Video
                 </button>
             `;
@@ -205,32 +209,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // GLOBALLY ACCESSIBLE FUNCTION FOR MAP POPUP BUTTONS
-    window.startMapVideo = function(name, era, scene) {
+    // Starts video rendering from Map Popup
+    window.startMapVideo = function(name, era, scene, lat, lng) {
         if (map) map.closePopup();
-        
-        // Switch back to the explore tab
         switchTab('explore-section');
         
-        const resultCard = document.getElementById('result-card');
-        resultCard.classList.remove('hidden');
-        resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const memoryId = 'mem_' + Date.now();
+        const placeholderImg = "https://via.placeholder.com/400x300/88BDF2/384959?text=Map+Discovery";
         
+        document.getElementById('result-card').classList.remove('hidden');
         document.getElementById('location-name').innerText = name;
         document.getElementById('tour-script').innerText = `Looking up archives for ${name} (${era})...`;
+
+        // Add placeholder to scrapbook right away
+        addSouvenirToScrapbook(memoryId, name, `Generated from Map Discovery: ${scene}`, placeholderImg, [name + " history"], lat, lng);
         
-        // Start video generation for the selected nearby place
-        generateVideoStory(name, era, scene);
+        // Render video
+        generateVideoStory(name, era, scene, memoryId);
     };
 
     // --- ASYNC VEO POLLING ---
-    // Made globally accessible just in case, though it's called internally
-    window.generateVideoStory = async function(location, era, visual_scene) {
+    window.generateVideoStory = async function(location, era, visual_scene, memoryId) {
         const videoElement = document.getElementById('story-video');
         document.getElementById('video-container').classList.remove('hidden');
         
         videoElement.removeAttribute('src');
         videoElement.poster = "https://via.placeholder.com/400x225/1C1C1E/FFFFFF?text=Rendering+History...";
+
+        // Update Scrapbook UI to show rendering state
+        const souvenirVidContainer = document.getElementById(`vid-container-${memoryId}`);
+        if(souvenirVidContainer) souvenirVidContainer.innerHTML = `<p class="rendering-text">🎬 Rendering Historical Video...</p>`;
 
         try {
             const startRes = await fetch('/api/generate-video', {
@@ -250,11 +258,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     videoElement.poster = "";
                     videoElement.src = statusData.url;
                     videoElement.play();
-                    // Update text to match success
+                    
                     document.getElementById('tour-script').innerText = `Here is your historical visual tour for ${location}.`;
+
+                    // Attach finished video to the scrapbook
+                    if(souvenirVidContainer) {
+                        souvenirVidContainer.innerHTML = `<video controls width="100%" class="souvenir-video" src="${statusData.url}"></video>`;
+                    }
                 } else if (statusData.status === 'failed') {
                     clearInterval(pollInterval);
                     videoElement.poster = "https://via.placeholder.com/400x225/1C1C1E/ff4444?text=Generation+Failed";
+                    if(souvenirVidContainer) souvenirVidContainer.innerHTML = `<p class="rendering-text" style="color:red;">Failed to render video.</p>`;
                 }
             }, 5000);
 
@@ -263,14 +277,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- HISTORY ---
-    function addToHistory(location, script) {
+    // --- SCRAPBOOK LOGIC WITH EXTERNAL LINKS ---
+    function addSouvenirToScrapbook(id, location, script, imageSrc, references, lat, lng) {
         const historyList = document.getElementById('history-list');
         if (historyList.querySelector('p.hint-text')) historyList.innerHTML = ''; 
         
-        const historyItem = document.createElement('div');
-        historyItem.className = 'history-item';
-        historyItem.innerHTML = `<strong>${location}</strong><span>${script}</span>`;
-        historyList.prepend(historyItem);
+        // Construct dynamic map and wiki links based on AI coordinates/names
+        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+        const wikiLink = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(location)}`;
+
+        let refsHTML = `
+            <div class="ref-container">
+                <strong>Explore More:</strong><br>
+                <div class="chip-row">
+                    <a href="${wikiLink}" target="_blank" class="ref-chip wiki-chip">📖 Wikipedia</a>
+                    <a href="${mapsLink}" target="_blank" class="ref-chip map-chip">🗺️ View on Maps</a>
+        `;
+
+        if (references && references.length > 0) {
+            references.forEach(ref => {
+                refsHTML += `<a href="https://www.google.com/search?q=${encodeURIComponent(ref)}" target="_blank" class="ref-chip search-chip">🔍 ${ref}</a>`;
+            });
+        }
+        
+        refsHTML += `</div></div>`;
+
+        const souvenirHTML = `
+            <div class="souvenir-card" id="${id}">
+                <div class="souvenir-photo-frame">
+                    <img src="${imageSrc}" alt="${location}" class="souvenir-image" />
+                </div>
+                <div class="souvenir-details">
+                    <h3 class="souvenir-title">${location}</h3>
+                    <p class="souvenir-script">"${script}"</p>
+                    <div id="vid-container-${id}" class="souvenir-video-wrapper"></div>
+                    ${refsHTML}
+                </div>
+            </div>
+        `;
+        
+        historyList.insertAdjacentHTML('afterbegin', souvenirHTML);
     }
 });
