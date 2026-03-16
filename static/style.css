@@ -71,7 +71,7 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 20px; padding-b
 .leaflet-popup-tip-container { display: none; }
 .popup-btn { margin-top: 12px; padding: 10px 14px; font-size: 13px; width: 100%; }
 
-/* --- SOUVENIR SCRAPBOOK STYLES --- */
+/*SOUVENIR SCRAPBOOK STYLES */
 .souvenir-card { background: #FFFFFF; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); transform: rotate(-1deg); transition: transform 0.3s; border: 1px solid #e0e0e0; }
 .souvenir-card:nth-child(even) { transform: rotate(2deg); }
 .souvenir-card:active { transform: scale(0.98) rotate(0deg); }
@@ -83,7 +83,7 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 20px; padding-b
 .rendering-text { font-size: 13px; color: #f39c12; background: #fff8e1; padding: 8px; border-radius: 6px; text-align: center; font-weight: 600; margin-bottom: 15px; }
 .souvenir-video { border-radius: 8px; margin-bottom: 15px; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-/* --- LINK CHIPS --- */
+/* LINK CHIPS */
 .ref-container { border-top: 1px dashed #ccc; padding-top: 12px; font-size: 13px; color: var(--text-main); }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .ref-chip { display: inline-block; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid rgba(0,0,0,0.05); }

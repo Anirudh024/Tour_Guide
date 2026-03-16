@@ -1,0 +1,14 @@
+steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'tour-guide'             
+      - '--source'
+      - '.'                         
+      - '--region'
+      - 'us-central1'                
+      - '--allow-unauthenticated'    
+      - '--set-env-vars'
+      - 'GEMINI_API_KEY=$_GEMINI_API_KEY'
